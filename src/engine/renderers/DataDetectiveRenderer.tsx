@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { RendererProps } from '../types';
 import { LineChart, Search, Crosshair } from 'lucide-react';
+import { motion } from 'motion/react';
 
 export default function DataDetectiveRenderer({ level, onComplete }: RendererProps) {
   const { params } = level;
@@ -33,10 +34,12 @@ export default function DataDetectiveRenderer({ level, onComplete }: RendererPro
 
     setTimeout(() => {
       onComplete({
+        levelId: level.id,
         isCorrect,
         score: isCorrect ? 100 : 0,
         feedbackText: isCorrect ? '侦探眼光锐利！这段折线最陡峭。' : '线索找错了。请看哪一段的倾斜度（斜率）最大。',
-        providedData: { selectedSegment }
+        providedData: { selectedSegment },
+        timestamp: new Date().toISOString()
       });
     }, 2500);
   };
@@ -44,10 +47,15 @@ export default function DataDetectiveRenderer({ level, onComplete }: RendererPro
   return (
     <div className="flex flex-col h-full bg-[#1A2639] text-[#F5F7FA] p-6 rounded-[16px] shadow-[inset_0_0_50px_rgba(0,0,0,0.6)]">
       
-      <div className="flex items-center gap-3 mb-6 bg-[#24354F] w-fit px-5 py-3 rounded-full border border-[#3D5275] shadow-lg">
+      <motion.div 
+         initial={{ y: -20, opacity: 0 }}
+         animate={{ y: 0, opacity: 1 }}
+         transition={{ type: "spring", stiffness: 300, damping: 20 }}
+         className="flex items-center gap-3 mb-6 bg-[#24354F] w-fit px-5 py-3 rounded-full border border-[#3D5275] shadow-lg"
+      >
          <Search className="w-5 h-5 text-[#5BB9B0]" />
          <h2 className="font-bold text-[#E1E5EB]">{question}</h2>
-      </div>
+      </motion.div>
 
       <div className="flex-1 flex flex-col items-center justify-center w-full">
          
@@ -89,12 +97,15 @@ export default function DataDetectiveRenderer({ level, onComplete }: RendererPro
 
                     segment = (
                       <svg key={`line-${i}`} className="absolute inset-0 w-full h-full pointer-events-none" style={{ overflow: 'visible' }}>
-                         <line 
+                         <motion.line 
+                           initial={{ pathLength: 0 }}
+                           animate={{ pathLength: 1 }}
+                           transition={{ duration: 0.5, delay: i * 0.2 }}
                            x1={`${xPos}%`} 
                            y1={`${100 - yPos}%`} 
                            x2={`${nextXPos}%`} 
                            y2={`${100 - nextYPos}%`} 
-                           className={`${finalClass} ${hoverClass} pointer-events-auto transition-all`}
+                           className={`${finalClass} ${hoverClass} pointer-events-auto transition-colors`}
                            onClick={() => handleSelect(i)}
                            strokeLinecap="round"
                          />
@@ -114,14 +125,17 @@ export default function DataDetectiveRenderer({ level, onComplete }: RendererPro
                  return (
                    <React.Fragment key={`point-${i}`}>
                      {segment}
-                     <div 
+                     <motion.div 
+                       initial={{ scale: 0 }}
+                       animate={{ scale: 1 }}
+                       transition={{ type: "spring", stiffness: 300, delay: i * 0.2 }}
                        className="absolute w-3 h-3 bg-[#E1E5EB] rounded-full border-2 border-[#1A2639] transform -translate-x-1/2 translate-y-1/2 z-10 shadow-[0_0_5px_rgba(255,255,255,0.5)]"
                        style={{ left: `${xPos}%`, bottom: `${yPos}%` }}
                      >
                        <span className="absolute -top-6 left-1/2 transform -translate-x-1/2 text-[10px] text-[#E1E5EB] bg-[#24354F] px-1 rounded">
                          {point.y}
                        </span>
-                     </div>
+                     </motion.div>
                      <span 
                        className="absolute text-[12px] text-[#8A9EB8] transform -translate-x-1/2 whitespace-nowrap"
                        style={{ left: `${xPos}%`, bottom: '-30px' }}
@@ -135,21 +149,23 @@ export default function DataDetectiveRenderer({ level, onComplete }: RendererPro
          </div>
 
          {/* Controls */}
-         <button 
+         <motion.button 
+           whileHover={!submitted && selectedSegment !== null ? { scale: 1.05 } : {}}
+           whileTap={!submitted && selectedSegment !== null ? { scale: 0.95 } : {}}
            onClick={handleSubmit} 
            disabled={submitted || selectedSegment === null}
-           className={`px-10 py-4 rounded-xl font-bold text-lg shadow-lg flex items-center gap-2 transition-all
+           className={`px-10 py-4 rounded-xl font-bold text-lg shadow-lg flex items-center gap-2 transition-colors
              ${submitted 
                ? result?.isCorrect ? 'bg-[#5BB9B0] text-[#1A2639]' : 'bg-[#EF7D57] text-white'
                : selectedSegment !== null 
-                   ? 'bg-[#F5B041] text-[#7A4A00] hover:bg-[#F2CD6A] hover:-translate-y-1 active:translate-y-0 shadow-[0_4px_0_#B8860B]' 
-                   : 'bg-[#2D3E5A] text-[#5A6D8C] cursor-not-allowed'
+                   ? 'bg-[#F5B041] text-[#7A4A00] shadow-[0_4px_0_#B8860B]' 
+                   : 'bg-[#2D3E5A] text-[#5A6D8C] cursor-not-allowed border-transparent shadow-none'
              }
            `}
          >
            <Crosshair className="w-5 h-5" />
            {submitted ? (result?.isCorrect ? '锁定嫌疑犯 (正确)' : '线索中断 (错误)') : '提取数据'}
-         </button>
+         </motion.button>
 
       </div>
     </div>

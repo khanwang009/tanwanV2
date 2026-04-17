@@ -3,6 +3,7 @@ import { TrainingPack, LevelAttempt, LevelResult } from '../engine/types';
 import { engineRegistry } from '../engine/registry';
 import { updateMastery } from '../engine/mastery';
 import { PlayCircle, Target, Award, ArrowRight, XCircle, SkipForward } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 
 export default function LevelPlayer({ pack, onExit }: { pack: TrainingPack, onExit: () => void }) {
   const [currentLevelIndex, setCurrentLevelIndex] = useState(0);
@@ -66,22 +67,39 @@ export default function LevelPlayer({ pack, onExit }: { pack: TrainingPack, onEx
     const finalScore = Math.round((sessionScore / maxScore) * 100) || 0;
     
     return (
-      <div className="flex flex-col items-center justify-center p-10 h-full w-full bg-[#1A2639]">
-        <div className="bg-[#24354F] border border-[#3D5275] p-10 rounded-2xl shadow-2xl flex flex-col items-center gap-6 max-w-lg w-full transform transition-all animate-in zoom-in-95">
-          <Award className="w-24 h-24 text-[#F5B041] mb-2" />
+      <motion.div 
+         initial={{ opacity: 0 }}
+         animate={{ opacity: 1 }}
+         className="flex flex-col items-center justify-center p-10 h-full w-full bg-[#1A2639] fixed inset-0 z-50"
+      >
+        <motion.div 
+           initial={{ scale: 0.8, y: 50, opacity: 0 }}
+           animate={{ scale: 1, y: 0, opacity: 1 }}
+           transition={{ type: "spring", stiffness: 300, damping: 20 }}
+           className="bg-[#24354F] border border-[#3D5275] p-10 rounded-2xl shadow-2xl flex flex-col items-center gap-6 max-w-lg w-full"
+        >
+          <motion.div
+             initial={{ rotate: -180, scale: 0 }}
+             animate={{ rotate: 0, scale: 1 }}
+             transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.2 }}
+          >
+             <Award className="w-24 h-24 text-[#F5B041] mb-2 drop-shadow-[0_0_15px_rgba(245,176,65,0.6)]" />
+          </motion.div>
           <h2 className="text-3xl font-bold text-white font-sans tracking-wide">训练完成！</h2>
           <div className="text-center text-[#8A9EB8]">
              <p className="mb-2">本次完成关卡：<span className="text-white font-bold">{levels.length}</span></p>
              <p className="text-lg">综合评分：<span className="text-[#5BB9B0] font-mono text-2xl font-bold ml-2">{finalScore}</span></p>
           </div>
-          <button 
+          <motion.button 
+             whileHover={{ scale: 1.05 }}
+             whileTap={{ scale: 0.95 }}
              onClick={onExit}
-             className="px-8 py-3 bg-[#4C8DA8] hover:bg-[#5BB9B0] text-white rounded-full font-bold shadow-[0_4px_0_#2A657D] active:translate-y-1 active:shadow-none transition-all w-full mt-4"
+             className="px-8 py-3 bg-[#4C8DA8] hover:bg-[#5BB9B0] text-white rounded-full font-bold shadow-[0_4px_0_#2A657D] active:shadow-none transition-colors w-full mt-4"
           >
             返回控制台
-          </button>
-        </div>
-      </div>
+          </motion.button>
+        </motion.div>
+      </motion.div>
     );
   }
 
@@ -106,17 +124,26 @@ export default function LevelPlayer({ pack, onExit }: { pack: TrainingPack, onEx
          <div className="flex-1 max-w-md mx-8 flex items-center gap-3">
             <span className="text-[#8A9EB8] text-xs font-mono font-bold">LVL {currentLevelIndex + 1}/{levels.length}</span>
             <div className="flex-1 h-3 bg-[#121B27] rounded-full overflow-hidden border border-[#2A3B56]">
-               <div 
-                 className="h-full bg-gradient-to-r from-[#4C8DA8] to-[#5BB9B0] transition-all duration-500 ease-out"
-                 style={{ width: `${((currentLevelIndex) / levels.length) * 100}%` }}
-               ></div>
+               <motion.div 
+                 className="h-full bg-gradient-to-r from-[#4C8DA8] to-[#5BB9B0]"
+                 initial={{ width: `${(currentLevelIndex / levels.length) * 100}%` }}
+                 animate={{ width: `${((currentLevelIndex) / levels.length) * 100}%` }}
+                 transition={{ type: "spring", stiffness: 100, damping: 20 }}
+               ></motion.div>
             </div>
          </div>
 
          <div className="flex items-center gap-3">
            <div className="flex flex-col items-end">
              <span className="text-[10px] text-[#8A9EB8] uppercase">积分</span>
-             <span className="text-white font-mono font-bold text-lg leading-none">{sessionScore}</span>
+             <motion.span 
+               key={sessionScore}
+               initial={{ scale: 1.5, color: "#F5B041" }}
+               animate={{ scale: 1, color: "#FFFFFF" }}
+               className="font-mono font-bold text-lg leading-none"
+             >
+               {sessionScore}
+             </motion.span>
            </div>
            <Award className="w-8 h-8 text-[#F5B041]" />
          </div>
@@ -169,17 +196,28 @@ export default function LevelPlayer({ pack, onExit }: { pack: TrainingPack, onEx
 
         {/* Engine Render Area */}
         <div className="flex-1 bg-[#0F172A] p-8 relative overflow-hidden flex flex-col">
-           {RendererComponent ? (
-             <Suspense fallback={<div className="flex-1 flex items-center justify-center text-[#4C8DA8] animate-pulse">初始化引擎模块...</div>}>
-               <RendererComponent level={level} onComplete={handleLevelComplete} />
-             </Suspense>
-           ) : (
-             <div className="flex-1 flex flex-col items-center justify-center border-2 border-dashed border-[#2A3B56] rounded-[16px] text-[#5A6D8C]">
-               <PlayCircle className="w-16 h-16 mb-4 opacity-50" />
-               <p>模板 {level.templateId} 未实现渲染器</p>
-               <button onClick={handleSkip} className="mt-6 px-6 py-2 bg-[#2D3E5A] text-white rounded hover:bg-[#344869]">强制跳过并得分</button>
-             </div>
-           )}
+           <AnimatePresence mode="wait">
+             <motion.div
+               key={level.id}
+               initial={{ x: 50, opacity: 0, scale: 0.95 }}
+               animate={{ x: 0, opacity: 1, scale: 1 }}
+               exit={{ x: -50, opacity: 0, scale: 0.95 }}
+               transition={{ type: "spring", stiffness: 300, damping: 25 }}
+               className="flex-1 flex flex-col h-full"
+             >
+               {RendererComponent ? (
+                 <Suspense fallback={<div className="flex-1 flex items-center justify-center text-[#4C8DA8] animate-pulse">初始化引擎模块...</div>}>
+                   <RendererComponent level={level} onComplete={handleLevelComplete} />
+                 </Suspense>
+               ) : (
+                 <div className="flex-1 flex flex-col items-center justify-center border-2 border-dashed border-[#2A3B56] rounded-[16px] text-[#5A6D8C]">
+                   <PlayCircle className="w-16 h-16 mb-4 opacity-50" />
+                   <p>模板 {level.templateId} 未实现渲染器</p>
+                   <button onClick={handleSkip} className="mt-6 px-6 py-2 bg-[#2D3E5A] text-white rounded hover:bg-[#344869]">强制跳过并得分</button>
+                 </div>
+               )}
+             </motion.div>
+           </AnimatePresence>
         </div>
 
       </div>

@@ -4,12 +4,13 @@
  */
 import React, { useState } from 'react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@radix-ui/react-tabs';
-import { LayoutDashboard, Network, Component, Backpack } from 'lucide-react';
+import { LayoutDashboard, Network, Component, Backpack, Settings } from 'lucide-react';
 import Dashboard from './components/Dashboard';
 import KnowledgeGraph from './components/KnowledgeGraph';
 import TemplateEngine from './components/TemplateEngine';
 import TrainingPack from './components/TrainingPack';
 import LevelPlayer from './components/LevelPlayer';
+import AdminConfigurator from './components/AdminConfigurator';
 import { currentStudent, currentUser } from './data';
 
 export default function App() {
@@ -65,6 +66,13 @@ export default function App() {
               <Backpack className="w-4 h-4" />
               强化练习包
             </TabsTrigger>
+            <TabsTrigger 
+              value="admin" 
+              className="px-5 py-3 flex items-center gap-2 text-[13px] text-[#666666] hover:bg-[#F8FAFC] data-[state=active]:bg-[#F0F4F8] data-[state=active]:text-[#21335B] data-[state=active]:border-b-[3px] data-[state=active]:border-[#21335B] data-[state=active]:font-medium transition-colors outline-none whitespace-nowrap ml-auto"
+            >
+              <Settings className="w-4 h-4" />
+              教研录题台
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="dashboard" className="outline-none">
@@ -78,6 +86,9 @@ export default function App() {
           </TabsContent>
           <TabsContent value="packs" className="outline-none">
             <TrainingPack onStartTraining={setActivePack} />
+          </TabsContent>
+          <TabsContent value="admin" className="outline-none h-full">
+            <AdminConfigurator />
           </TabsContent>
         </Tabs>
       </main>
