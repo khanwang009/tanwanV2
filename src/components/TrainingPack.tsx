@@ -1,8 +1,10 @@
 import React from 'react';
 import { PlayCircle, Target } from 'lucide-react';
+import { generatePackFromDiagnosis } from '../engine/pack-generator';
+import { diagnosisResult, knowledgeNodes, levels, templateRegistry } from '../data';
 
-export default function TrainingPack() {
-  const { generatedPack, levels, knowledgeNodes, templateRegistry } = window;
+export default function TrainingPack({ onStartTraining }: { onStartTraining: (pack: any) => void }) {
+  const generatedPack = generatePackFromDiagnosis(diagnosisResult);
   if (!generatedPack) return null;
   const packLevels = levels.filter((l:any) => generatedPack.levelIds.includes(l.id));
 
@@ -22,12 +24,21 @@ export default function TrainingPack() {
                      return n ? `${n.code} ${n.name}` : id;
                  }).join('，')}</div>
              </div>
-             <div className="flex gap-2">
-                 {generatedPack.suggestedFlow.map((f: string) => (
-                     <span key={f} className="text-[10px] px-2.5 py-1 rounded-[4px] bg-white border border-[#E2E8F0] text-[#4A5568] uppercase whitespace-nowrap">
-                         {f === 'diagnostic' ? '诊断' : f === 'understanding' ? '理解' : f === 'transfer' ? '迁移' : f === 'review' ? '回顾' : f}
-                     </span>
-                 ))}
+             <div className="flex gap-4 items-center">
+                 <div className="flex gap-2">
+                     {generatedPack.suggestedFlow.map((f: string) => (
+                         <span key={f} className="text-[10px] px-2.5 py-1 rounded-[4px] bg-white border border-[#E2E8F0] text-[#4A5568] uppercase whitespace-nowrap">
+                             {f === 'diagnostic' ? '诊断' : f === 'understanding' ? '理解' : f === 'transfer' ? '迁移' : f === 'review' ? '回顾' : f}
+                         </span>
+                     ))}
+                 </div>
+                 <button 
+                    onClick={() => onStartTraining(generatedPack)}
+                    className="ml-2 px-6 py-2 bg-[#F5B041] hover:bg-[#F2CD6A] text-[#7A4A00] font-bold rounded-full shadow-[0_4px_0_#B8860B] active:translate-y-1 active:shadow-none transition-all flex items-center gap-2"
+                 >
+                    <PlayCircle className="w-5 h-5"/>
+                    开始训练
+                 </button>
              </div>
          </div>
          

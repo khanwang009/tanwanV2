@@ -1,8 +1,7 @@
 import React from 'react';
+import { uploadedQuestion, diagnosisResult, reportData, masteryRecords, knowledgeNodes, errorTypeMap } from '../data';
 
 export default function Dashboard() {
-  const { uploadedQuestion, diagnosisResult, reportData, masteryRecords, knowledgeNodes, errorTypeMap } = window;
-  
   return (
     <div className="space-y-5">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">

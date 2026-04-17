@@ -1,15 +1,14 @@
 import React from 'react';
+import { unitMap, knowledgeNodes, templateRegistry, nodeTemplateMapping, currentStudent } from '../data';
 
 export default function KnowledgeGraph() {
-  const { unitMap, knowledgeNodes, templateRegistry, nodeTemplateMapping } = window;
-  
   const units = Object.values(unitMap).sort((a: any, b: any) => a.orderIndex - b.orderIndex);
 
   return (
     <div className="space-y-5 flex flex-col h-full">
       <div className="flex justify-between items-center mb-1">
         <h1 className="text-[18px] font-[700] text-[#21335B]">知识谱系全景</h1>
-        <span className="text-[12px] text-[#666666]">学期：{window.currentStudent.schoolTerm}</span>
+        <span className="text-[12px] text-[#666666]">学期：{currentStudent?.schoolTerm || '2025-2026-2'}</span>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 flex-1">

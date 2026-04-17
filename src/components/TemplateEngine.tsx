@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Component, Terminal } from 'lucide-react';
+import { templateRegistry, knowledgeNodes, nodeTemplateMapping } from '../data';
 
 export default function TemplateEngine() {
-  const { templateRegistry, knowledgeNodes, nodeTemplateMapping } = window;
   const [activeTab, setActiveTab] = useState<'registry' | 'mapping'>('registry');
   
   const categories = Array.from(new Set(templateRegistry.map((t:any) => t.category)));

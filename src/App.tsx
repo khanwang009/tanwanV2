@@ -2,14 +2,23 @@
  * @license
  * SPDX-License-Identifier: Apache-2.0
  */
+import React, { useState } from 'react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@radix-ui/react-tabs';
 import { LayoutDashboard, Network, Component, Backpack } from 'lucide-react';
 import Dashboard from './components/Dashboard';
 import KnowledgeGraph from './components/KnowledgeGraph';
 import TemplateEngine from './components/TemplateEngine';
 import TrainingPack from './components/TrainingPack';
+import LevelPlayer from './components/LevelPlayer';
+import { currentStudent, currentUser } from './data';
 
 export default function App() {
+  const [activePack, setActivePack] = useState<any>(null);
+
+  if (activePack) {
+    return <LevelPlayer pack={activePack} onExit={() => setActivePack(null)} />;
+  }
+
   return (
     <div className="min-h-screen bg-[#F5F7FA] flex flex-col font-sans text-[#333333]">
       <header className="bg-white border-b border-[#E1E5EB] px-6 py-4 flex items-center justify-between sticky top-0 z-10 shadow-sm">
@@ -18,9 +27,9 @@ export default function App() {
           五年级数学学习诊断与强化系统
         </h1>
         <div className="flex items-center gap-4 text-[13px] text-[#666666]">
-          <span>{window.currentStudent.name} ({window.currentStudent.grade})</span>
+          <span>{currentStudent.name} ({currentStudent.grade})</span>
           <span className="font-semibold text-[#333333]">
-            {window.currentUser.nickname}
+            {currentUser.nickname}
           </span>
         </div>
       </header>
@@ -68,7 +77,7 @@ export default function App() {
             <TemplateEngine />
           </TabsContent>
           <TabsContent value="packs" className="outline-none">
-            <TrainingPack />
+            <TrainingPack onStartTraining={setActivePack} />
           </TabsContent>
         </Tabs>
       </main>
